@@ -2,7 +2,6 @@ package com.nevie.calculator.model
 
 import android.util.Log
 import java.lang.Exception
-import java.math.BigDecimal
 import java.math.RoundingMode
 
 private val TAG = "Calculator model"
@@ -41,6 +40,10 @@ class Calculator(
         // 0-9 .:  are numbers, add them to the calculation string
         // % / * - + are operators, check the operator to see if it's postfix or surround operators
         // = means to execute the calculation where ever it is.
+
+        if(!operationsList.isNullOrEmpty() && operationsList.last() == "=") {
+            clearCalculator()
+        }
 
         when {
             listOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".").contains(buttonText) -> {
@@ -90,9 +93,9 @@ class Calculator(
                 tryToCalculateExistingCalculation()
             }
             "=".contains(buttonText) -> {
-                TODO("= operation function that figures what to do.")
                 pushToOperationsList(buttonText)
 
+                tryToCalculateExistingCalculation()
             }
             "clear".contains(buttonText) -> {
                 clearCalculator()
@@ -115,45 +118,62 @@ class Calculator(
         }
     }
 
-    private fun tryToCalculateExistingCalculation(text: String = "") {
-        // What to do when the function "=" is passed to argument text?
+//    private fun calculate(){
+//        var subtotal = ""
+//        subtotal = operationsList[0]
+//
+//        (0 until operationsList.count()-1 step 2).forEach(){
+//            Log.d(TAG, "Calculate iterator:$it")
+//            //tryToCalculateExistingCalculation(it)
+//            subtotal = tryToCalculateExistingCalculation()
+//        }
+//    }
 
-
-        var total = ""
-        operationsList.forEach {
-            Log.d(TAG, "tryToCalculateExistingCalculation. $it , ${it.iterator()}")
+    private fun tryToCalculateExistingCalculation(wasEqualsPressed : Boolean = false): String {
+        var subTotal = operationsList[0]
+        var offsetForEquals = 0
+        if (wasEqualsPressed ) offsetForEquals = 1
+        (0 until operationsList.count()-2-offsetForEquals step 2).forEach(){
+            //Log.d(TAG, "tryToCalculate: $operator, $operand1, $operand2")
+            subTotal =  callOperation(operationsList[it+1], subTotal, operationsList[it+2])
+            if (!isNumeric(subTotal)) {
+                // Got an error, or nan, or invalid response.
+                return subTotal
+            }
         }
-
-        if (operationsList.count() < 3) {
-            total = ""
-        } else {
-            total = callOperation(
-                operationsList[1],
-                operationsList[0].toDouble(),
-                operationsList[2].toDouble()
-            )
-        }
-
-        if (text == "=" && (total == "" || !isNumeric(total))) {
-            total = "undefined, failed try again."
-        }
-
-        this.currentTotal = total
+        return subTotal
     }
+
+//    private fun findOperatorAndExecute(iterator : Int = 0, text: String = ""):String {
+//        // What to do when the function "=" is passed to argument text?
+//
+//        var total = ""
+////        operationsList.forEach {
+////            Log.d(TAG, "tryToCalculateExistingCalculation. $it , ${it.iterator()}")
+////        }
+//        if (operationsList.count() < 3) {
+//            total = ""
+//        } else {
+//            total = callOperation(operationsList[iterator +1], operationsList[iterator], operationsList[iterator + 2])
+//        }
+//
+//        if (text == "=" && (total == "" || !isNumeric(total))) {
+//            total = "undefined, failed try again."
+//        }
+//        this.currentTotal = total
+//        return total
+//    }
 
     private fun isNumeric(text: String): Boolean {
         return text.matches("(-?\\d+(\\.)?)|(-?(\\.\\d+)?)|(-?\\d+(\\.\\d+)?)|(^-?\\.?$)".toRegex())
     }
 
-
     private fun buildCurrentCalculationStringFromOperationsList() {
         //this.currentCalculation = ""
         this.currentCalculation = operationsList.joinToString(" ", "", "")
         Log.d(TAG,"buildCurrentCalculationString... " +
-                "${operationsList.joinToString(" ", "", "")}"
-        )
+                "${operationsList.joinToString(" ", "", "")}")
     }
-
 
     private fun pushToOperationsList(text: String) {
         this.operationsList.add(text)
@@ -206,10 +226,13 @@ class Calculator(
             number.toBigDecimal().setScale(this.decimalScale, RoundingMode.DOWN).toString()
     }
 
-    private fun callOperation(operation: String, operand1: Double, operand2: Double = 0.0): String {
+    private fun callOperation(operation: String, operandFirst: String, operandSecond: String = ""): String {
         var newTotal = ""
         val op = Operations.values().find {it.symbol == operation}
+        var operand1 = operandFirst.toDouble()
+        var operand2 = operandSecond.toDouble()
         Log.d(TAG, "callOperation($operation, $operand1, $operand2")
+
 
         newTotal = when (op) {
             Operations.DIVIDE -> {
@@ -225,7 +248,7 @@ class Calculator(
                 addition(operand1,operand2)
             }
             Operations.SUBTRACT -> {
-                subraction(operand1,operand2)
+                subtraction(operand1,operand2)
             }
             Operations.SQUARED -> {
                 squared(operand1)
@@ -235,65 +258,65 @@ class Calculator(
             }
             //            Operations -> { }
         }
-        this.currentTotal = newTotal
-        return newTotal
+        this.currentTotal = formatTotal(newTotal)
+        return currentTotal
     }
 
-    
+    private fun formatTotal(total: String):String{
+        var formatted = ""
+        var num = 0.0
+
+        if (hasDecimal) {
+            formatted = total
+        }else if (isNumeric(total)) {
+             num = total.toDouble()
+            if (num % 1  == 0.0 )
+                formatted = num.toInt().toString()
+            else
+                formatted = num.toString()
+        } else {
+            formatted = total
+        }
+        return formatted
+
+    }
+
+    private fun equals(operand1: Double, operand2: Double): String {
+        return (tryToCalculateExistingCalculation())
+    }
 
     private fun addition(operand1: Double, operand2: Double): String {
-
         return (operand1 + operand2).toString()
-
     }
 
 
-    private fun subraction(operand1: Double, operand2: Double): String {
-        return if (this.currentTotal != "" && !isNumeric(currentTotal)) {
-            (operand1 - operand2).toString()
-        } else "nan"
+    private fun subtraction(operand1: Double, operand2: Double): String {
+        return (operand1 - operand2).toString()
     }
 
 
     private fun squared(operand: Double): String {
-        return if (this.currentTotal != "" && !isNumeric(currentTotal)) {
-            (operand * operand).toString()
-        } else "nan"
+        return (operand * operand).toString()
     }
 
     private fun multiply(operand1: Double, operand2: Double): String {
-        return if (this.currentTotal != "" && !isNumeric(currentTotal)) {
-            (operand1 * operand2).toString()
-        } else "nan"
+        return (operand1 * operand2).toString()
     }
 
     private fun divide(operand1: Double, operand2: Double): String {
         return if (operand2 == 0.0) {
             return "Error div by 0"
-        }else if (this.currentTotal != "" && !isNumeric(currentTotal)) {
+        }else {
             (operand1 / operand2).toString()
-        } else "nan"
+        }
     }
 
     private fun modulo(operand1: Double, operand2: Double): String {
         return if (operand2 == 0.0) {
-            return "Error div by 0"
-        }else if (this.currentTotal != "" && !isNumeric(currentTotal)) {
+            return "Error Modulo by 0"
+        }else  {
             (operand1 % operand2).toString()
-        } else "nan"
+        }
     }
-
-    private fun multiply(operand: Double): String {
-        return if (this.currentTotal != "" && !isNumeric(currentTotal)) {
-            (currentTotal.toDouble() * operand).toString()
-        } else "nan"
-    }
-
-    private fun divide(operand: Double): String {
-        return if (this.currentTotal != "" && !isNumeric(currentTotal)) {
-            (currentTotal.toDouble() / operand).toString()
-        } else "nan"
-    }
-
 
 }
