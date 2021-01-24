@@ -1,0 +1,21 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="AppTheme.RoundedCornerMaterialButtonNumber" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:background">@drawable/rounded_shape</item>
+    </style>
+
+
+    <style name="AppTheme.RoundedCornerMaterialButtonOperator" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:background">@drawable/rounded_shape_operators</item>
+    </style>
+
+
+</resources>
