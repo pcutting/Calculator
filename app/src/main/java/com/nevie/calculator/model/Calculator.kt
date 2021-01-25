@@ -27,8 +27,7 @@ enum class Operations(val symbol: String) {
     SUBTRACT("-"),
     MODULO("%"),
     SQUARED("^2"),
-    NEGATE("+/-"),
-    EQUALS("=");
+    NEGATE("+/-");
 
 
     companion object {
@@ -62,10 +61,6 @@ class Calculator(
         // % / * - + are operators, check the operator to see if it's postfix or surround operators
         // = means to execute the calculation where ever it is.
 
-        if(!operationsList.isNullOrEmpty() && operationsList.last().operation == Operations.EQUALS) {
-            clearCalculator()
-        }
-
         when {
             listOf("+/-", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".").contains(buttonText) -> {
                 Log.d(TAG, "fun proccessUserInput ('$buttonText')")
@@ -77,9 +72,6 @@ class Calculator(
             }
             Operations.isSymbol(buttonText) -> {
                 //"%","/","*","-","+","^" -> {
-                // 1) check to see if the previous operation was an operator.
-                // true ), replace with current operator. and continue to check for subtotal option
-                // false ) add operator to list and calcs and go to 2
                 val unit : Unit = Unit (kind = Kinds.OPERATOR, operation = Operations.getEnumValue(buttonText)
                 )
                 if (unit.operation == null)  Exception("expected a known operation, non found.")
@@ -90,14 +82,6 @@ class Calculator(
                 } else if (operationsList.last().isOperation()) {
                     // replacing last pressed operation with new one.  user changed their mind on operator.
                     replaceLastOperatorInOperationsList(unit)
-//                } else if (isNumeric(operationsList.last()) &&
-//                    operationsList.last().endsWith(".")
-//                ) {
-//                    //Check if last is a number with decimal without a digit after the decimal.
-//                    //if trailing decimal, add a zero after the decimal for formating. Then add operation
-//                    //to end of list.
-//                    combineLastNumberWithNewInputDigitAndUpdateList("0")
-//                    pushToOperationsList(unit)
                 } else {
                     pushToOperationsList(unit)
                 }
@@ -105,33 +89,31 @@ class Calculator(
                 tryToCalculateExistingCalculation()
             }
             "=".contains(buttonText) -> {
-                var unit :Unit = Unit(kind = Kinds.OPERATOR, operation = Operations.EQUALS)
-                pushToOperationsList(unit)
-
-                tryToCalculateExistingCalculation()
+                //var unit :Unit = Unit(kind = Kinds.OPERATOR, operation = Operations.EQUALS)
+                //pushToOperationsList(unit)
+                if (operationsList.count() > 2) {
+                    tryToCalculateExistingCalculation()
+                } else {
+                    //TODO, give a message that there is nothing to do with dempty list.
+                }
             }
             "clear".contains(buttonText) -> {
                 clearCalculator()
             }
             "delete".contains(buttonText) -> {
-                TODO("Delete last character or operation")
-                if (operationsList.last().isOperation()) {
+                //TODO("Delete last character or operation")
+                if (operationsList.isNullOrEmpty()) {
+                    currentCalculation = "Nothing to delete."
+                } else if (operationsList.last().isOperation()) {
                     operationsList.removeLastOrNull()
                 } else {
                     removeLastCharacterFromNumberData()
                 }
-            }
-            "...".contains(buttonText) -> {
-                val unit = Unit(kind=Kinds.OPERATOR )
-                TODO(
-                    "more_functions operation called... this probably should be handled " +
-                            "inside the ViewModel"
-                )
-
-            }
-            else -> {
+                buildCurrentCalculationStringFromOperationsList()
+            } else -> {
                 TODO("unknown operation being called.  Throw error")
             }
+
 
         }
     }
@@ -179,28 +161,34 @@ class Calculator(
                 combineLastNumberWithNewInputDigitAndUpdateList(buttonText)
             }
             else -> {TODO("FAIL")}
-
         }
-
-
     }
 
     private fun tryToCalculateExistingCalculation(wasEqualsPressed : Boolean = false): String {
-        var subTotal = operationsList[0].numberData
-        var offsetForEquals = 0
-        //TODO terrible way to handle operator.Equals
-        if (wasEqualsPressed ) offsetForEquals = 1
-        (0 until operationsList.count()-2-offsetForEquals step 2).forEach(){
-            //Log.d(TAG, "tryToCalculate: $operator, $operand1, $operand2")
+        var subTotal = ""
+        try {
+            subTotal = operationsList[0].numberData
 
-            //TODO reconsider this operation.
-            subTotal =  callOperation(operationsList[it+1].operation!!.symbol, subTotal, operationsList[it+2].numberData)
-            if (!isNumeric(subTotal)) {
-                // Got an error, or nan, or invalid response.
-                return subTotal
+            (0 until operationsList.count() - 2 step 2).forEach() {
+                //Log.d(TAG, "tryToCalculate: $operator, $operand1, $operand2")
+
+                //TODO reconsider this operation.
+                subTotal = callOperation(
+                    operationsList[it + 1].operation!!.symbol,
+                    subTotal,
+                    operationsList[it + 2].numberData
+                )
+                if (!isNumeric(subTotal)) {
+                    // Got an error, or nan, or invalid response.
+                    return subTotal
+                }
             }
+        } catch (e : Error) {
+            subTotal = "Error in calculation"
+            Log.d(TAG, "Error $e in tryToCalculate...")
         }
         return subTotal
+
     }
 
     private fun isNumeric(text: String): Boolean {
@@ -229,7 +217,6 @@ class Calculator(
         if (unit.isNumber()) {
             throw Exception("trying to remove a non operator item")
         }
-
         operationsList.removeAt(operationsList.count() - 1)
         pushToOperationsList(unit)
     }
@@ -241,9 +228,6 @@ class Calculator(
         if (unit == null) {
             throw Exception("trying to remove a non operator item")
         }
-
-
-
         operationsList.removeLastOrNull()
         pushToOperationsList(unit)
     }
@@ -328,7 +312,7 @@ class Calculator(
             else -> {
                 throw Exception("Invalid operation")
             }
-            //            Operations -> { }
+
         }
         this.currentTotal = formatTotal(newTotal)
         return currentTotal
@@ -355,7 +339,7 @@ class Calculator(
 
     }
 
-    private fun equals(operand1: Double, operand2: Double): String {
+    private fun equals(): String {
         return (tryToCalculateExistingCalculation())
     }
 
@@ -374,7 +358,11 @@ class Calculator(
     }
 
     private fun multiply(operand1: Double, operand2: Double): String {
-        return (operand1 * operand2).toString()
+        var math = operand1 * operand2
+        var testSize = (operand1 * operand2) >  Double.MAX_VALUE
+        Log.d(TAG, "Divide, looking for oversized numbers ${testSize}")
+
+        return (math).toString()
     }
 
     private fun divide(operand1: Double, operand2: Double): String {
