@@ -9,6 +9,7 @@ class MainActivity : AppCompatActivity() {
 
     private var calculatorViewModel  = CalculatorViewModel()
 
+    @ExperimentalStdlibApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)

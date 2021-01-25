@@ -6,20 +6,18 @@ import java.math.RoundingMode
 
 private val TAG = "Calculator model"
 
-class unit(
+class Unit(
     var numberData:String = "", // screen representation, ie "9"
-    var operation: Operations,
+    var sign: Int = 1, // 1 for positive, -1 for negative
+    var operation: Operations? = null,
     var kind: Kinds
 ) {
     fun isNumber():Boolean { return kind == Kinds.NUMBER}
     fun isOperation():Boolean { return kind== Kinds.OPERATOR}
-
 }
-
 
 enum class Kinds{
     NUMBER, OPERATOR;
-
 }
 
 enum class Operations(val symbol: String) {
@@ -28,11 +26,17 @@ enum class Operations(val symbol: String) {
     ADD("+"),
     SUBTRACT("-"),
     MODULO("%"),
-    SQUARED("^2");
+    SQUARED("^2"),
+    NEGATE("+/-"),
+    EQUALS("=");
+
 
     companion object {
         fun isSymbol(symbol: String): Boolean {
             return Operations.values().find { it.symbol == symbol } != null
+        }
+        fun getEnumValue(symbol:String):Operations? {
+            return Operations.values().find{it.symbol == symbol}
         }
     }
 }
@@ -41,7 +45,7 @@ enum class Operations(val symbol: String) {
 
 // Should decimalScale be shifted to the view Model?
 class Calculator(
-    val operationsList: MutableList<String> = mutableListOf<String>(),
+    val operationsList: MutableList<Unit> = mutableListOf<Unit>(),
     var currentTotal: String = "",
     var currentOperator: String? = null,
     var currentCalculation: String = "",
@@ -52,48 +56,57 @@ class Calculator(
 ) {
 
     // takes button feedback and processes it.
+    @ExperimentalStdlibApi
     fun processUserInput(buttonText: String) {
         // 0-9 .:  are numbers, add them to the calculation string
         // % / * - + are operators, check the operator to see if it's postfix or surround operators
         // = means to execute the calculation where ever it is.
 
-        if(!operationsList.isNullOrEmpty() && operationsList.last() == "=") {
+        if(!operationsList.isNullOrEmpty() && operationsList.last().operation == Operations.EQUALS) {
             clearCalculator()
         }
 
         when {
             listOf("+/-", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".").contains(buttonText) -> {
                 Log.d(TAG, "fun proccessUserInput ('$buttonText')")
-                processNumericKeys(buttonText)
-
+                val unit : Unit = Unit(numberData = buttonText, kind = Kinds.NUMBER, operation = Operations.getEnumValue(buttonText))
+                if (buttonText==("+/-")) {
+                    unit.numberData = "-"
+                }
+                processNumericKeys(unit)
             }
             Operations.isSymbol(buttonText) -> {
                 //"%","/","*","-","+","^" -> {
                 // 1) check to see if the previous operation was an operator.
                 // true ), replace with current operator. and continue to check for subtotal option
                 // false ) add operator to list and calcs and go to 2
+                val unit : Unit = Unit (kind = Kinds.OPERATOR, operation = Operations.getEnumValue(buttonText)
+                )
+                if (unit.operation == null)  Exception("expected a known operation, non found.")
+
                 if (this.operationsList.isNullOrEmpty()) {
                     TODO("Currently program doesn't allow for math that begines with an operator.")
-                    pushToOperationsList(buttonText)
-                } else if (Operations.isSymbol(operationsList.last())) {
+                    pushToOperationsList(unit)
+                } else if (operationsList.last().isOperation()) {
                     // replacing last pressed operation with new one.  user changed their mind on operator.
-                    replaceLastOperatorInOperationsList(buttonText)
-                } else if (isNumeric(operationsList.last()) &&
-                    operationsList.last().endsWith(".")
-                ) {
-                    //Check if last is a number with decimal without a digit after the decimal.
-                    //if trailing decimal, add a zero after the decimal for formating. Then add operation
-                    //to end of list.
-                    combineLastNumberWithNewInputDigitAndUpdateList("0")
-                    pushToOperationsList(buttonText)
+                    replaceLastOperatorInOperationsList(unit)
+//                } else if (isNumeric(operationsList.last()) &&
+//                    operationsList.last().endsWith(".")
+//                ) {
+//                    //Check if last is a number with decimal without a digit after the decimal.
+//                    //if trailing decimal, add a zero after the decimal for formating. Then add operation
+//                    //to end of list.
+//                    combineLastNumberWithNewInputDigitAndUpdateList("0")
+//                    pushToOperationsList(unit)
                 } else {
-                    pushToOperationsList(buttonText)
+                    pushToOperationsList(unit)
                 }
 
                 tryToCalculateExistingCalculation()
             }
             "=".contains(buttonText) -> {
-                pushToOperationsList(buttonText)
+                var unit :Unit = Unit(kind = Kinds.OPERATOR, operation = Operations.EQUALS)
+                pushToOperationsList(unit)
 
                 tryToCalculateExistingCalculation()
             }
@@ -102,81 +115,66 @@ class Calculator(
             }
             "delete".contains(buttonText) -> {
                 TODO("Delete last character or operation")
-                pushToOperationsList(buttonText)
+                if (operationsList.last().isOperation()) {
+                    operationsList.removeLastOrNull()
+                } else {
+                    removeLastCharacterFromNumberData()
+                }
             }
             "...".contains(buttonText) -> {
+                val unit = Unit(kind=Kinds.OPERATOR )
                 TODO(
                     "more_functions operation called... this probably should be handled " +
                             "inside the ViewModel"
                 )
-                pushToOperationsList(buttonText)
+
             }
             else -> {
-                TODO("unknown operatiion being called.  Throw error")
+                TODO("unknown operation being called.  Throw error")
             }
 
         }
     }
 
-    private fun processNumericKeys(buttonText: String) {
+    @ExperimentalStdlibApi
+    private fun processNumericKeys(unit: Unit) {
+        val buttonText = unit.numberData
+        if(unit.numberData == ".") hasDecimal = true
 
-        if(buttonText == ".") hasDecimal = true
-
-        //Convert following to when:
-        //
-        //
-        //if (this.operationsList.isNullOrEmpty()) {
-        //    pushToOperationsList(buttonText)
-        //} else if(buttonText == "+/-" &&  Operations.isSymbol(operationsList.last())) {
-        //    pushToOperationsList(buttonText)
-        //
-        //} else if(buttonText == "+/-" &&  isNumeric(operationsList.last()) &&
-        //    operationsList.last().startsWith("-")) {
-        //    //pushToOperationsList(buttonText)
-        //    replaceLastOperatorInOperationsList()
-        //} else if (operationsList.last().contains(".") && buttonText == "." &&
-        //    isNumeric(operationsList.last()) )
-        //{
-        //    Log.d(TAG, "processUserInput($buttonText) Working with numbers")
-        //    // do nothing, it already has a . in it, don't add another one.
-        //    // user is trying to double click the "." button
-        //} else if (Operations.isSymbol(operationsList.last()) && isNumeric(buttonText)) {
-        //    pushToOperationsList(buttonText)
-        //} else if (isNumeric(this.operationsList.last()) && (isNumeric(buttonText))) {
-        //    //combine and replace last.
-        //    combineLastNumberWithNewInputDigitAndUpdateList(buttonText)
-        //}
-
-        // ---------------
-        if(buttonText == ".") hasDecimal = true
+        if(unit.operation == Operations.NEGATE) {
+            unit.sign *= -1
+        }
 
         when {
             (this.operationsList.isNullOrEmpty()) -> {
-                pushToOperationsList(buttonText)
+                pushToOperationsList(unit)
             }
 
-            (buttonText == "+/-" && Operations.isSymbol(operationsList.last()))-> {
-                pushToOperationsList(buttonText)
+            unit.operation == Operations.NEGATE && operationsList.last().isNumber() -> {
+                var priorUnit = operationsList.last()
+                if (priorUnit.numberData[0] == '-') {
+                        priorUnit.numberData = priorUnit.numberData.substring(1,priorUnit.numberData.length)
+                        replaceLastOperationInOperationsList(priorUnit)
+                } else {
+                    priorUnit.numberData = "-" + priorUnit.numberData
+                    replaceLastOperationInOperationsList(priorUnit)
+                }
             }
-            (buttonText == "+/-" && isNumeric(operationsList.last()) && operationsList.last().startsWith("-")) -> {
-                //pushToOperationsList(buttonText)
-                val substring = operationsList.last().substring(1,operationsList.last().length)
-                replaceLastOperatorInOperationsList(substring, buttonText)
+
+            (unit.operation == Operations.NEGATE && operationsList.last().isOperation() )-> {
+                unit.numberData="-"
+                pushToOperationsList(unit)
             }
-            (buttonText == "+/-" && isNumeric(operationsList.last())) -> {
-                //pushToOperationsList(buttonText)
-                val substring = "-" + operationsList.last()
-                replaceLastOperatorInOperationsList(substring)
-            }
-            (operationsList.last().contains(".") && buttonText == "." && isNumeric(operationsList.last()))->  {
+
+            (operationsList.last().numberData.contains(".") && buttonText == "." && isNumeric(operationsList.last().numberData))->  {
                 Log.d(TAG, "processUserInput($buttonText) Working with numbers")
                 // do nothing, it already has a . in it, don't add another one.
                 // user is trying to double click the "." button
             }
-            (Operations.isSymbol(operationsList.last()) && isNumeric(buttonText)) -> {
-                pushToOperationsList(buttonText)
+            (operationsList.last().isOperation() && isNumeric(buttonText)) -> {
+                pushToOperationsList(unit)
             }
-            (isNumeric(this.operationsList.last()) && (isNumeric(buttonText))) -> {
+            (operationsList.last().isNumber() && (isNumeric(buttonText))) -> {
                 //combine and replace last.
                 combineLastNumberWithNewInputDigitAndUpdateList(buttonText)
             }
@@ -187,24 +185,16 @@ class Calculator(
 
     }
 
-//    private fun calculate(){
-//        var subtotal = ""
-//        subtotal = operationsList[0]
-//
-//        (0 until operationsList.count()-1 step 2).forEach(){
-//            Log.d(TAG, "Calculate iterator:$it")
-//            //tryToCalculateExistingCalculation(it)
-//            subtotal = tryToCalculateExistingCalculation()
-//        }
-//    }
-
     private fun tryToCalculateExistingCalculation(wasEqualsPressed : Boolean = false): String {
-        var subTotal = operationsList[0]
+        var subTotal = operationsList[0].numberData
         var offsetForEquals = 0
+        //TODO terrible way to handle operator.Equals
         if (wasEqualsPressed ) offsetForEquals = 1
         (0 until operationsList.count()-2-offsetForEquals step 2).forEach(){
             //Log.d(TAG, "tryToCalculate: $operator, $operand1, $operand2")
-            subTotal =  callOperation(operationsList[it+1], subTotal, operationsList[it+2])
+
+            //TODO reconsider this operation.
+            subTotal =  callOperation(operationsList[it+1].operation!!.symbol, subTotal, operationsList[it+2].numberData)
             if (!isNumeric(subTotal)) {
                 // Got an error, or nan, or invalid response.
                 return subTotal
@@ -213,66 +203,79 @@ class Calculator(
         return subTotal
     }
 
-//    private fun findOperatorAndExecute(iterator : Int = 0, text: String = ""):String {
-//        // What to do when the function "=" is passed to argument text?
-//
-//        var total = ""
-////        operationsList.forEach {
-////            Log.d(TAG, "tryToCalculateExistingCalculation. $it , ${it.iterator()}")
-////        }
-//        if (operationsList.count() < 3) {
-//            total = ""
-//        } else {
-//            total = callOperation(operationsList[iterator +1], operationsList[iterator], operationsList[iterator + 2])
-//        }
-//
-//        if (text == "=" && (total == "" || !isNumeric(total))) {
-//            total = "undefined, failed try again."
-//        }
-//        this.currentTotal = total
-//        return total
-//    }
-
     private fun isNumeric(text: String): Boolean {
         return text.matches("(-?\\d+(\\.)?)|(-?(\\.\\d+)?)|(-?\\d+(\\.\\d+)?)|(^-?\\.?$)".toRegex())
     }
 
     private fun buildCurrentCalculationStringFromOperationsList() {
-        //this.currentCalculation = ""
-        this.currentCalculation = operationsList.joinToString(" ", "", "")
-        Log.d(TAG,"buildCurrentCalculationString... " +
-                "${operationsList.joinToString(" ", "", "")}")
+        currentCalculation = ""
+        operationsList.forEach {
+            if (it.isOperation()) {
+                currentCalculation += it.operation!!.symbol
+            } else {
+                currentCalculation += it.numberData
+            }
+        }
     }
 
-    private fun pushToOperationsList(text: String) {
-        var string = text
-        if (text = "+/-" && operationsList.isNullOrEmpty()) string = "-"
-        this.operationsList.add(string)
+    private fun pushToOperationsList(unit: Unit) {
+        this.operationsList.add(unit)
         this.buildCurrentCalculationStringFromOperationsList()
     }
 
-    private fun replaceLastOperatorInOperationsList(text: String, buttonText: String? = null) {
+    private fun replaceLastOperatorInOperationsList(unit: Unit, buttonText: String? = null) {
         // this is called when a user changes the last operator they selected
         // before they add a number.  This calculator doesn't allow for operator chaining.
-        if (!buttonText.isNullOrEmpty() && buttonText != "+/-" &&  !Operations.isSymbol(text)) {
-            throw Exception("trying to remove a non operator item")
-        } else if (!buttonText.isNullOrEmpty() && buttonText != "+/-" &&  !Operations.isSymbol(text)) {
-            throw Exception("trying to remove a non operator item")
-        } else if (text != "-" && !Operations.isSymbol(text)) {
+        if (unit.isNumber()) {
             throw Exception("trying to remove a non operator item")
         }
+
         operationsList.removeAt(operationsList.count() - 1)
-        pushToOperationsList(text)
+        pushToOperationsList(unit)
+    }
+
+    @ExperimentalStdlibApi
+    private fun replaceLastOperationInOperationsList(unit: Unit, buttonText: String? = null) {
+        // this is called when a user changes the last operator they selected
+        // before they add a number.  This calculator doesn't allow for operator chaining.
+        if (unit == null) {
+            throw Exception("trying to remove a non operator item")
+        }
+
+
+
+        operationsList.removeLastOrNull()
+        pushToOperationsList(unit)
     }
 
     private fun combineLastNumberWithNewInputDigitAndUpdateList(text: String) {
-        var digit = this.operationsList.last()
-        if (!isNumeric(text) || !isNumeric(digit)) {
-            throw Exception("Not a number")
+        var unit = this.operationsList.last()
+        if (!isNumeric(text) || !isNumeric(unit.numberData)) {
+            throw Exception("Not a number provided or being operated on")
         }
         this.operationsList.removeAt(operationsList.count() - 1)
-        digit += text
-        pushToOperationsList(digit)
+        unit.numberData += text
+        operationsList
+        pushToOperationsList(unit)
+    }
+
+    @ExperimentalStdlibApi
+    private fun removeLastCharacterFromNumberData() {
+        var unit = operationsList.last()
+        var digit = unit.numberData
+
+        if (!isNumeric(unit.numberData) || !isNumeric(digit)) {
+            throw Exception("Not a number")
+        }
+
+        //this.operationsList.removeAt(operationsList.count() - 1)
+        if (unit.numberData.length > 1) {
+            //remove last char, remove last from list, update and add back to list
+            unit.numberData = unit.numberData.substring(0,unit.numberData.length-1)
+            operationsList.last().numberData = unit.numberData
+        } else {
+            operationsList.removeLastOrNull()
+        }
     }
 
     private fun clearCalculator() {
@@ -283,14 +286,6 @@ class Calculator(
         this.hasDecimal = false
     }
 
-//    private fun isOperatorOrFunction(value: String): Boolean {
-//        Operations.values().forEach { if (value == it.name) return true }
-//        //the functions list check may not make sense.  verify if it even should be used.
-//        this.functionsList.forEach { if (it == value) return true }
-//        return false
-//    }
-
-
     private fun textifyNumericFeedback(number: Double): String {
         return if (number % 1 == 0.0)
             "${number.toInt()}"
@@ -300,8 +295,11 @@ class Calculator(
                 .toString()
     }
 
-    private fun callOperation(operation: String, operandFirst: String, operandSecond: String = ""): String {
+    //TODO Get rid of operation String, make it enum type.
+    private fun callOperation(operation: String?, operandFirst: String, operandSecond: String = ""): String {
         var newTotal = ""
+        if (operation.isNullOrEmpty()) { throw Exception("missing operator") }
+
         val op = Operations.values().find {it.symbol == operation}
         var operand1 = operandFirst.toDouble()
         var operand2 = operandSecond.toDouble()
