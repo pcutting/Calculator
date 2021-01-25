@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
-import androidx.lifecycle.ViewModel
 
 class MainActivity : AppCompatActivity() {
 
@@ -38,9 +37,13 @@ class MainActivity : AppCompatActivity() {
         val add = findViewById<Button>(R.id.addition_button)
         val equals = findViewById<Button>(R.id.equals_button)
 
-        val moreFunctions = findViewById<Button>(R.id.more_functions_button)
+        val negator = findViewById<Button>(R.id.negate_button)
+
+        //val moreFunctions = findViewById<Button>(R.id.negate_button)
 
         //values
+        negator.setOnClickListener { calculatorViewModel.buttonPush("+/-")
+            updateScreen(calculationTextView,totalTextView)}
         n0.setOnClickListener { calculatorViewModel.buttonPush("0")
             updateScreen(calculationTextView,totalTextView)}
         n1.setOnClickListener { calculatorViewModel.buttonPush("1")
@@ -88,11 +91,11 @@ class MainActivity : AppCompatActivity() {
             updateScreen(calculationTextView,totalTextView)}
         delete.setOnClickListener { calculatorViewModel.buttonPush("delete")
             updateScreen(calculationTextView,totalTextView)}
-        moreFunctions.setOnClickListener {
-            calculatorViewModel.buttonPush("...")
-            //DO("make proper impementation for this.")
-            updateScreen(calculationTextView,totalTextView)
-        }
+//        moreFunctions.setOnClickListener {
+//            calculatorViewModel.buttonPush("...")
+//            //DO("make proper impementation for this.")
+//            updateScreen(calculationTextView,totalTextView)
+//        }
         //            .setOnClickListener { calculatorViewModel.buttonPush("") }
     }
 

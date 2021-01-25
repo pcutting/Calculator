@@ -6,6 +6,22 @@ import java.math.RoundingMode
 
 private val TAG = "Calculator model"
 
+class unit(
+    var numberData:String = "", // screen representation, ie "9"
+    var operation: Operations,
+    var kind: Kinds
+) {
+    fun isNumber():Boolean { return kind == Kinds.NUMBER}
+    fun isOperation():Boolean { return kind== Kinds.OPERATOR}
+
+}
+
+
+enum class Kinds{
+    NUMBER, OPERATOR;
+
+}
+
 enum class Operations(val symbol: String) {
     DIVIDE("/"),
     MULTIPLY("*"),
@@ -46,26 +62,10 @@ class Calculator(
         }
 
         when {
-            listOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".").contains(buttonText) -> {
+            listOf("+/-", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".").contains(buttonText) -> {
                 Log.d(TAG, "fun proccessUserInput ('$buttonText')")
+                processNumericKeys(buttonText)
 
-                if(buttonText == ".") hasDecimal = true
-
-                if (this.operationsList.isNullOrEmpty()) {
-                    pushToOperationsList(buttonText)
-                } else if (operationsList.last().contains(".") &&
-                    buttonText == "." &&
-                    isNumeric(operationsList.last())
-                ) {
-                    Log.d(TAG, "processUserInput($buttonText) Working with numbers")
-                    // do nothing, it already has a . in it, don't add another one.
-                    // user is trying to double click the "." button
-                } else if (Operations.isSymbol(operationsList.last()) && isNumeric(buttonText)) {
-                    pushToOperationsList(buttonText)
-                } else if (isNumeric(this.operationsList.last()) && (isNumeric(buttonText))) {
-                    //combine and replace last.
-                    combineLastNumberWithNewInputDigitAndUpdateList(buttonText)
-                }
             }
             Operations.isSymbol(buttonText) -> {
                 //"%","/","*","-","+","^" -> {
@@ -116,6 +116,75 @@ class Calculator(
             }
 
         }
+    }
+
+    private fun processNumericKeys(buttonText: String) {
+
+        if(buttonText == ".") hasDecimal = true
+
+        //Convert following to when:
+        //
+        //
+        //if (this.operationsList.isNullOrEmpty()) {
+        //    pushToOperationsList(buttonText)
+        //} else if(buttonText == "+/-" &&  Operations.isSymbol(operationsList.last())) {
+        //    pushToOperationsList(buttonText)
+        //
+        //} else if(buttonText == "+/-" &&  isNumeric(operationsList.last()) &&
+        //    operationsList.last().startsWith("-")) {
+        //    //pushToOperationsList(buttonText)
+        //    replaceLastOperatorInOperationsList()
+        //} else if (operationsList.last().contains(".") && buttonText == "." &&
+        //    isNumeric(operationsList.last()) )
+        //{
+        //    Log.d(TAG, "processUserInput($buttonText) Working with numbers")
+        //    // do nothing, it already has a . in it, don't add another one.
+        //    // user is trying to double click the "." button
+        //} else if (Operations.isSymbol(operationsList.last()) && isNumeric(buttonText)) {
+        //    pushToOperationsList(buttonText)
+        //} else if (isNumeric(this.operationsList.last()) && (isNumeric(buttonText))) {
+        //    //combine and replace last.
+        //    combineLastNumberWithNewInputDigitAndUpdateList(buttonText)
+        //}
+
+        // ---------------
+        if(buttonText == ".") hasDecimal = true
+
+        when {
+            (this.operationsList.isNullOrEmpty()) -> {
+                pushToOperationsList(buttonText)
+            }
+
+            (buttonText == "+/-" && Operations.isSymbol(operationsList.last()))-> {
+                pushToOperationsList(buttonText)
+            }
+            (buttonText == "+/-" && isNumeric(operationsList.last()) && operationsList.last().startsWith("-")) -> {
+                //pushToOperationsList(buttonText)
+                val substring = operationsList.last().substring(1,operationsList.last().length)
+                replaceLastOperatorInOperationsList(substring, buttonText)
+            }
+            (buttonText == "+/-" && isNumeric(operationsList.last())) -> {
+                //pushToOperationsList(buttonText)
+                val substring = "-" + operationsList.last()
+                replaceLastOperatorInOperationsList(substring)
+            }
+            (operationsList.last().contains(".") && buttonText == "." && isNumeric(operationsList.last()))->  {
+                Log.d(TAG, "processUserInput($buttonText) Working with numbers")
+                // do nothing, it already has a . in it, don't add another one.
+                // user is trying to double click the "." button
+            }
+            (Operations.isSymbol(operationsList.last()) && isNumeric(buttonText)) -> {
+                pushToOperationsList(buttonText)
+            }
+            (isNumeric(this.operationsList.last()) && (isNumeric(buttonText))) -> {
+                //combine and replace last.
+                combineLastNumberWithNewInputDigitAndUpdateList(buttonText)
+            }
+            else -> {TODO("FAIL")}
+
+        }
+
+
     }
 
 //    private fun calculate(){
@@ -176,14 +245,20 @@ class Calculator(
     }
 
     private fun pushToOperationsList(text: String) {
-        this.operationsList.add(text)
+        var string = text
+        if (text = "+/-" && operationsList.isNullOrEmpty()) string = "-"
+        this.operationsList.add(string)
         this.buildCurrentCalculationStringFromOperationsList()
     }
 
-    private fun replaceLastOperatorInOperationsList(text: String) {
+    private fun replaceLastOperatorInOperationsList(text: String, buttonText: String? = null) {
         // this is called when a user changes the last operator they selected
         // before they add a number.  This calculator doesn't allow for operator chaining.
-        if (!Operations.isSymbol(text)) {
+        if (!buttonText.isNullOrEmpty() && buttonText != "+/-" &&  !Operations.isSymbol(text)) {
+            throw Exception("trying to remove a non operator item")
+        } else if (!buttonText.isNullOrEmpty() && buttonText != "+/-" &&  !Operations.isSymbol(text)) {
+            throw Exception("trying to remove a non operator item")
+        } else if (text != "-" && !Operations.isSymbol(text)) {
             throw Exception("trying to remove a non operator item")
         }
         operationsList.removeAt(operationsList.count() - 1)
@@ -208,22 +283,21 @@ class Calculator(
         this.hasDecimal = false
     }
 
-    private fun isOperatorOrFunction(value: String): Boolean {
-        Operations.values().forEach { if (value == it.name) return true }
-        //the functions list check may not make sense.  verify if it even should be used.
-        this.functionsList.forEach { if (it == value) return true }
-        return false
-    }
+//    private fun isOperatorOrFunction(value: String): Boolean {
+//        Operations.values().forEach { if (value == it.name) return true }
+//        //the functions list check may not make sense.  verify if it even should be used.
+//        this.functionsList.forEach { if (it == value) return true }
+//        return false
+//    }
 
-    private fun lastButtonPressed(): String {
-        return this.operationsList.last()
-    }
 
     private fun textifyNumericFeedback(number: Double): String {
-        return if (number % 2 == 0.0)
+        return if (number % 1 == 0.0)
             "${number.toInt()}"
         else
-            number.toBigDecimal().setScale(this.decimalScale, RoundingMode.DOWN).toString()
+            number.toBigDecimal()
+                .setScale(this.decimalScale, RoundingMode.DOWN)
+                .toString()
     }
 
     private fun callOperation(operation: String, operandFirst: String, operandSecond: String = ""): String {
@@ -266,9 +340,11 @@ class Calculator(
         var formatted = ""
         var num = 0.0
 
-        if (hasDecimal) {
+        if (hasDecimal && isNumeric(total)) {
+            formatted = textifyNumericFeedback( total.toDouble())
+        } else if (hasDecimal) {
             formatted = total
-        }else if (isNumeric(total)) {
+        } else if (isNumeric(total)) {
              num = total.toDouble()
             if (num % 1  == 0.0 )
                 formatted = num.toInt().toString()
