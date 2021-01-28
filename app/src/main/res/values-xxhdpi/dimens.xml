@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="standard_margin">16dp</dimen>
+    <dimen name="half_standard_margin">8dp</dimen>
+    <dimen name="tight_margin">4dp</dimen>
+    <dimen name="text_size">35sp</dimen>
+    <dimen name="text_hieght">70sp</dimen>
+    <dimen name="guildline_dp">300dp</dimen>
+    <dimen name="guildline_land_dp">250dp</dimen>
+
+</resources>
