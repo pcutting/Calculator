@@ -6,7 +6,7 @@ import java.math.RoundingMode
 
 private val TAG = "Calculator model"
 
-class Unit(
+data class Unit(
     var numberData:String = "", // screen representation, ie "9"
     var sign: Int = 1, // 1 for positive, -1 for negative
     var operation: Operations? = null,
@@ -52,8 +52,17 @@ class Calculator(
     var lastOperator: String = "",
     private var hasDecimal : Boolean = false,
     val functionsList: List<String> = listOf("clear", "delete", "...", "=")
+
+
+
 ) {
 
+    companion object {
+        private val numberTypeButtonsList = listOf<String>("+/-", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".")
+    }
+
+    
+    
     // takes button feedback and processes it.
     @ExperimentalStdlibApi
     fun processUserInput(buttonText: String) {
@@ -62,7 +71,7 @@ class Calculator(
         // = means to execute the calculation where ever it is.
 
         when {
-            listOf("+/-", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".").contains(buttonText) -> {
+            numberTypeButtonsList.contains(buttonText) -> {
                 Log.d(TAG, "fun proccessUserInput ('$buttonText')")
                 val unit : Unit = Unit(numberData = buttonText, kind = Kinds.NUMBER, operation = Operations.getEnumValue(buttonText))
                 if (buttonText==("+/-")) {
@@ -77,7 +86,7 @@ class Calculator(
                 if (unit.operation == null)  Exception("expected a known operation, non found.")
 
                 if (this.operationsList.isNullOrEmpty()) {
-                    TODO("Currently program doesn't allow for math that begines with an operator.")
+                    handleErrors("Currently program doesn't allow for math that begines with an operator.")
                     pushToOperationsList(unit)
                 } else if (operationsList.last().isOperation()) {
                     // replacing last pressed operation with new one.  user changed their mind on operator.
@@ -101,7 +110,7 @@ class Calculator(
                 clearCalculator()
             }
             "delete".contains(buttonText) -> {
-                //TODO("Delete last character or operation")
+                //handleErrors("Delete last character or operation")
                 if (operationsList.isNullOrEmpty()) {
                     currentCalculation = "Nothing to delete."
                 } else if (operationsList.last().isOperation()) {
@@ -111,7 +120,7 @@ class Calculator(
                 }
                 buildCurrentCalculationStringFromOperationsList()
             } else -> {
-                TODO("unknown operation being called.  Throw error")
+                handleErrors("unknown operation being called.  Throw error")
             }
 
 
@@ -160,7 +169,7 @@ class Calculator(
                 //combine and replace last.
                 combineLastNumberWithNewInputDigitAndUpdateList(buttonText)
             }
-            else -> {TODO("FAIL")}
+            else -> {handleErrors("FAIL")}
         }
     }
 
@@ -215,7 +224,7 @@ class Calculator(
         // this is called when a user changes the last operator they selected
         // before they add a number.  This calculator doesn't allow for operator chaining.
         if (unit.isNumber()) {
-            throw Exception("trying to remove a non operator item")
+            handleErrors("trying to remove a non operator item")
         }
         operationsList.removeAt(operationsList.count() - 1)
         pushToOperationsList(unit)
@@ -226,7 +235,7 @@ class Calculator(
         // this is called when a user changes the last operator they selected
         // before they add a number.  This calculator doesn't allow for operator chaining.
         if (unit == null) {
-            throw Exception("trying to remove a non operator item")
+            handleErrors("trying to remove a non operator item")
         }
         operationsList.removeLastOrNull()
         pushToOperationsList(unit)
@@ -235,7 +244,7 @@ class Calculator(
     private fun combineLastNumberWithNewInputDigitAndUpdateList(text: String) {
         var unit = this.operationsList.last()
         if (!isNumeric(text) || !isNumeric(unit.numberData)) {
-            throw Exception("Not a number provided or being operated on")
+            handleErrors("Not a number provided or being operated on")
         }
         this.operationsList.removeAt(operationsList.count() - 1)
         unit.numberData += text
@@ -249,7 +258,7 @@ class Calculator(
         var digit = unit.numberData
 
         if (!isNumeric(unit.numberData) || !isNumeric(digit)) {
-            throw Exception("Not a number")
+            handleErrors("Not a number")
         }
 
         //this.operationsList.removeAt(operationsList.count() - 1)
@@ -282,7 +291,7 @@ class Calculator(
     //TODO Get rid of operation String, make it enum type.
     private fun callOperation(operation: String?, operandFirst: String, operandSecond: String = ""): String {
         var newTotal = ""
-        if (operation.isNullOrEmpty()) { throw Exception("missing operator") }
+        if (operation.isNullOrEmpty()) { handleErrors("missing operator") }
 
         val op = Operations.values().find {it.symbol == operation}
         var operand1 = operandFirst.toDouble()
@@ -310,7 +319,8 @@ class Calculator(
                 squared(operand1)
             }
             else -> {
-                throw Exception("Invalid operation")
+                handleErrors("Invalid operation")
+                return currentTotal
             }
 
         }
@@ -379,6 +389,10 @@ class Calculator(
         }else  {
             (operand1 % operand2).toString()
         }
+    }
+    
+    private fun handleErrors(message : String) {
+        Log.d(TAG, "Possible error.  Check out '$message'.")
     }
 
 }
