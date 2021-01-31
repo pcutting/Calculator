@@ -105,50 +105,52 @@ class MainActivity : AppCompatActivity() {
             updateScreen(calculationTextView,totalTextView, mScrollView)
         }
 
-        negator.setOnClickListener { calculatorViewModel.buttonPush("+/-")
+        negator.setOnClickListener {
+            calculatorViewModel.buttonPush(CalculatorInputs.NEGATE)
+            updateScreen(calculationTextView,totalTextView, mScrollView)
+        }
+        n0.setOnClickListener { calculatorViewModel.buttonPush(CalculatorInputs.ZERO)
             updateScreen(calculationTextView,totalTextView, mScrollView)}
-        n0.setOnClickListener { calculatorViewModel.buttonPush("0")
-            updateScreen(calculationTextView,totalTextView, mScrollView)}
-        n1.setOnClickListener { calculatorViewModel.buttonPush("1")
+        n1.setOnClickListener { calculatorViewModel.buttonPush(CalculatorInputs.ONE)
             updateScreen(calculationTextView,totalTextView, mScrollView) }
-        n2.setOnClickListener { calculatorViewModel.buttonPush("2")
+        n2.setOnClickListener { calculatorViewModel.buttonPush(CalculatorInputs.TWO)
             updateScreen(calculationTextView,totalTextView, mScrollView)}
-        n3.setOnClickListener { calculatorViewModel.buttonPush("3")
+        n3.setOnClickListener { calculatorViewModel.buttonPush(CalculatorInputs.THREE)
             updateScreen(calculationTextView,totalTextView, mScrollView)}
-        n4.setOnClickListener { calculatorViewModel.buttonPush("4")
+        n4.setOnClickListener { calculatorViewModel.buttonPush(CalculatorInputs.FOUR)
             updateScreen(calculationTextView,totalTextView, mScrollView)}
-        n5.setOnClickListener { calculatorViewModel.buttonPush("5")
+        n5.setOnClickListener { calculatorViewModel.buttonPush(CalculatorInputs.FIVE)
             updateScreen(calculationTextView,totalTextView, mScrollView)}
-        n6.setOnClickListener { calculatorViewModel.buttonPush("6")
+        n6.setOnClickListener { calculatorViewModel.buttonPush(CalculatorInputs.SIX)
             updateScreen(calculationTextView,totalTextView, mScrollView)}
-        n7.setOnClickListener { calculatorViewModel.buttonPush("7")
+        n7.setOnClickListener { calculatorViewModel.buttonPush(CalculatorInputs.SEVEN)
             updateScreen(calculationTextView,totalTextView, mScrollView)}
-        n8.setOnClickListener { calculatorViewModel.buttonPush("8")
+        n8.setOnClickListener { calculatorViewModel.buttonPush(CalculatorInputs.EIGHT)
             updateScreen(calculationTextView,totalTextView, mScrollView)}
-        n9.setOnClickListener { calculatorViewModel.buttonPush("9")
+        n9.setOnClickListener { calculatorViewModel.buttonPush(CalculatorInputs.NINE)
             updateScreen(calculationTextView,totalTextView, mScrollView)}
-        dot.setOnClickListener { calculatorViewModel.buttonPush(".")
+        dot.setOnClickListener { calculatorViewModel.buttonPush(CalculatorInputs.DOT)
             updateScreen(calculationTextView,totalTextView, mScrollView)}
 
 
         //Operations
 
-        divide.setOnClickListener { calculatorViewModel.buttonPush("/")
+        divide.setOnClickListener { calculatorViewModel.buttonPush(CalculatorInputs.DIVIDE)
             updateScreen(calculationTextView,totalTextView, mScrollView)
         }
-        multiply.setOnClickListener { calculatorViewModel.buttonPush("*")
+        multiply.setOnClickListener { calculatorViewModel.buttonPush(CalculatorInputs.MULTIPLY)
             updateScreen(calculationTextView,totalTextView, mScrollView)}
-        subtract.setOnClickListener { calculatorViewModel.buttonPush("-")
+        subtract.setOnClickListener { calculatorViewModel.buttonPush(CalculatorInputs.SUBTRACT)
             updateScreen(calculationTextView,totalTextView, mScrollView)}
-        add.setOnClickListener { calculatorViewModel.buttonPush("+")
+        add.setOnClickListener { calculatorViewModel.buttonPush(CalculatorInputs.ADD)
             updateScreen(calculationTextView,totalTextView, mScrollView)}
 
         //Function calls.
-        equals.setOnClickListener { calculatorViewModel.buttonPush("=")
+        equals.setOnClickListener { calculatorViewModel.buttonPush(CalculatorInputs.EQUALS)
             updateScreen(calculationTextView,totalTextView, mScrollView)}
-        clear.setOnClickListener { calculatorViewModel.buttonPush("clear")
+        clear.setOnClickListener { calculatorViewModel.buttonPush(CalculatorInputs.CLEAR)
             updateScreen(calculationTextView,totalTextView, mScrollView)}
-        delete.setOnClickListener { calculatorViewModel.buttonPush("delete")
+        delete.setOnClickListener { calculatorViewModel.buttonPush(CalculatorInputs.DELETE)
             updateScreen(calculationTextView,totalTextView, mScrollView)}
 
 

@@ -129,7 +129,7 @@ enum class CalculatorInputs(private val kindOf : Kinds, val text_value: String, 
 //    }
 //}
 
-class Calculator(
+data class Calculator(
     val operationsList: MutableList<CalculatingUnit> = mutableListOf<CalculatingUnit>(),
     var currentTotal: String = "",
     var currentCalculation: String = "",
@@ -156,10 +156,12 @@ class Calculator(
         } else if (buttonText.contains(" ")) {
             //has more than one operation.  Send it to check to see if it is a calculation substring
             processStatementInputs(buttonText)
+        } else if (CalculatorInputs.isSymbol(buttonText)) {
+            processUserInput(CalculatorInputs.getEnumValue(buttonText))
         } else if (isNumeric(buttonText)) {
             processCompleteNumberInputs(buttonText)
         } else {
-            processUserInput(CalculatorInputs.getEnumValue(buttonText))
+            return
         }
     }
 
@@ -185,7 +187,7 @@ class Calculator(
             if(isNumeric(it)) {
                 processCompleteNumberInputs(it)
             } else {
-                processUserInput(CalculatorInputs.getEnumValue(string))
+                processUserInput(CalculatorInputs.getEnumValue(it))
             }
         }
     }
@@ -245,7 +247,7 @@ class Calculator(
         val unit: CalculatingUnit = CalculatingUnit(
             numberData = button.text_value,
             kind = Kinds.NUMBER,
-            operation = null  // Operations.getEnumValue(button.text_value)
+            operation = CalculatorInputs?.getEnumValue(button.text_value) ?: null
         )
         if (button == CalculatorInputs.NEGATE) {
             unit.numberData = "-"
@@ -487,6 +489,7 @@ class Calculator(
 
             else -> {
                 handleErrors("Invalid operation")
+                 currentTotal = "Invalid Operation"
                 return currentTotal
             }
         }
@@ -537,6 +540,7 @@ class Calculator(
 
             else -> {
                 handleErrors("Invalid operation")
+                currentTotal  = "Invalid Operation"
                 return currentTotal
             }
 

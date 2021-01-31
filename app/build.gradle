@@ -6,6 +6,10 @@ android {
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
 
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+
     defaultConfig {
         applicationId "com.nevie.calculator"
         minSdkVersion 23
