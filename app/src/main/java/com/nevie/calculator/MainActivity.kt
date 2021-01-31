@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.ScrollView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
@@ -17,6 +18,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+
+        //val mTextStatus =  findViewById<TextView>(R.id.calculation_text_view);
+        val mScrollView : ScrollView =  findViewById<ScrollView>(R.id.calculation_text_scroller);
+
 
         val calculationTextView = findViewById<TextView>(R.id.calculation_text_view)
         val totalTextView = findViewById<TextView>(R.id.total_text_view)
@@ -68,97 +74,102 @@ class MainActivity : AppCompatActivity() {
                 makeCardInvisible(moreOptionsCard)
             }
             calculatorViewModel.buttonPush(Inputs.SQUARED)
-            updateScreen(calculationTextView,totalTextView)
+            updateScreen(calculationTextView,totalTextView, mScrollView)
         }
 
         nthPowerButton?.setOnClickListener {
             makeCardInvisible(moreOptionsCard)
             calculatorViewModel.buttonPush(Inputs.NTHPOWEROF)
-            updateScreen(calculationTextView,totalTextView)
+            updateScreen(calculationTextView,totalTextView, mScrollView)
         }
 
         nthRootButton?.setOnClickListener {
             makeCardInvisible(moreOptionsCard)
             calculatorViewModel.buttonPush(Inputs.NTHROOTOF)
-            updateScreen(calculationTextView,totalTextView)
+            updateScreen(calculationTextView,totalTextView, mScrollView)
         }
 
         log2Button?.setOnClickListener {
             makeCardInvisible(moreOptionsCard)
             calculatorViewModel.buttonPush(Inputs.LOG2)
-            updateScreen(calculationTextView,totalTextView)
+            updateScreen(calculationTextView,totalTextView, mScrollView)
         }
 
         mod?.setOnClickListener {
             makeCardInvisible(moreOptionsCard)
             calculatorViewModel.buttonPush("%")
-            updateScreen(calculationTextView,totalTextView)
+            updateScreen(calculationTextView,totalTextView, mScrollView)
         }
 
         sqrtButton?.setOnClickListener {
             makeCardInvisible(moreOptionsCard)
             calculatorViewModel.buttonPush(Inputs.SQUAREROOT)
-            updateScreen(calculationTextView,totalTextView)
+            updateScreen(calculationTextView,totalTextView, mScrollView)
         }
 
         negator.setOnClickListener { calculatorViewModel.buttonPush("+/-")
-            updateScreen(calculationTextView,totalTextView)}
+            updateScreen(calculationTextView,totalTextView, mScrollView)}
         n0.setOnClickListener { calculatorViewModel.buttonPush("0")
-            updateScreen(calculationTextView,totalTextView)}
+            updateScreen(calculationTextView,totalTextView, mScrollView)}
         n1.setOnClickListener { calculatorViewModel.buttonPush("1")
-            updateScreen(calculationTextView,totalTextView)
-        }
+            updateScreen(calculationTextView,totalTextView, mScrollView) }
         n2.setOnClickListener { calculatorViewModel.buttonPush("2")
-            updateScreen(calculationTextView,totalTextView)}
+            updateScreen(calculationTextView,totalTextView, mScrollView)}
         n3.setOnClickListener { calculatorViewModel.buttonPush("3")
-            updateScreen(calculationTextView,totalTextView)}
+            updateScreen(calculationTextView,totalTextView, mScrollView)}
         n4.setOnClickListener { calculatorViewModel.buttonPush("4")
-            updateScreen(calculationTextView,totalTextView)}
+            updateScreen(calculationTextView,totalTextView, mScrollView)}
         n5.setOnClickListener { calculatorViewModel.buttonPush("5")
-            updateScreen(calculationTextView,totalTextView)}
+            updateScreen(calculationTextView,totalTextView, mScrollView)}
         n6.setOnClickListener { calculatorViewModel.buttonPush("6")
-            updateScreen(calculationTextView,totalTextView)}
+            updateScreen(calculationTextView,totalTextView, mScrollView)}
         n7.setOnClickListener { calculatorViewModel.buttonPush("7")
-            updateScreen(calculationTextView,totalTextView)}
+            updateScreen(calculationTextView,totalTextView, mScrollView)}
         n8.setOnClickListener { calculatorViewModel.buttonPush("8")
-            updateScreen(calculationTextView,totalTextView)}
+            updateScreen(calculationTextView,totalTextView, mScrollView)}
         n9.setOnClickListener { calculatorViewModel.buttonPush("9")
-            updateScreen(calculationTextView,totalTextView)}
+            updateScreen(calculationTextView,totalTextView, mScrollView)}
         dot.setOnClickListener { calculatorViewModel.buttonPush(".")
-            updateScreen(calculationTextView,totalTextView)}
+            updateScreen(calculationTextView,totalTextView, mScrollView)}
 
 
         //Operations
 
         divide.setOnClickListener { calculatorViewModel.buttonPush("/")
-            updateScreen(calculationTextView,totalTextView)
+            updateScreen(calculationTextView,totalTextView, mScrollView)
         }
         multiply.setOnClickListener { calculatorViewModel.buttonPush("*")
-            updateScreen(calculationTextView,totalTextView)}
+            updateScreen(calculationTextView,totalTextView, mScrollView)}
         subtract.setOnClickListener { calculatorViewModel.buttonPush("-")
-            updateScreen(calculationTextView,totalTextView)}
+            updateScreen(calculationTextView,totalTextView, mScrollView)}
         add.setOnClickListener { calculatorViewModel.buttonPush("+")
-            updateScreen(calculationTextView,totalTextView)}
+            updateScreen(calculationTextView,totalTextView, mScrollView)}
 
         //Function calls.
         equals.setOnClickListener { calculatorViewModel.buttonPush("=")
-            updateScreen(calculationTextView,totalTextView)}
+            updateScreen(calculationTextView,totalTextView, mScrollView)}
         clear.setOnClickListener { calculatorViewModel.buttonPush("clear")
-            updateScreen(calculationTextView,totalTextView)}
+            updateScreen(calculationTextView,totalTextView, mScrollView)}
         delete.setOnClickListener { calculatorViewModel.buttonPush("delete")
-            updateScreen(calculationTextView,totalTextView)}
-//        moreFunctions.setOnClickListener {
-//            calculatorViewModel.buttonPush("...")
-//            //DO("make proper impementation for this.")
-//            updateScreen(calculationTextView,totalTextView)
-//        }
-        //            .setOnClickListener { calculatorViewModel.buttonPush("") }
+            updateScreen(calculationTextView,totalTextView, mScrollView)}
+
+
+        
     }
 
-    private fun updateScreen(calculationTextView: TextView, totalTextView: TextView){
+    private fun scrollToBottom(mScrollView : ScrollView) {
+        val mTextStatus = mScrollView.findViewById<TextView>(R.id.calculation_text_view)
+         mScrollView.smoothScrollTo(0, mTextStatus.getBottom());
+
+    }
+    
+    
+    private fun updateScreen( calculationTextView: TextView, totalTextView: TextView, mScrollView : ScrollView){
 
         calculationTextView.text = calculatorViewModel.getCaluculationString()
         totalTextView.text = calculatorViewModel.getTotalValueFromCalculator()
+        scrollToBottom(mScrollView)
+        
     }
 
     private fun toggleMoreOptionsView(card : CardView?) {

@@ -4,7 +4,4 @@
     <dimen name="half_standard_margin">8dp</dimen>
     <dimen name="tight_margin">4dp</dimen>
     <dimen name="text_size">30sp</dimen>
-    <dimen name="text_hieght">70sp</dimen>
-    <dimen name="guildline_dp">300dp</dimen>
-    <dimen name="guildline_land_dp">250dp</dimen>
 </resources>

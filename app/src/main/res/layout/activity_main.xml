@@ -7,12 +7,60 @@
     android:background="#091FEC"
     tools:context=".MainActivity">
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline"
-        android:layout_width="wrap_content"
+
+
+    <ScrollView
+        android:id="@+id/calculation_text_scroller"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="4dp"
+        android:fillViewport="true"
+        android:scrollbars="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/total_text_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+        <TextView
+
+
+            android:id="@+id/calculation_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/half_standard_margin"
+            android:layout_marginTop="@dimen/half_standard_margin"
+            android:layout_marginEnd="@dimen/half_standard_margin"
+            android:layout_marginBottom="@dimen/half_standard_margin"
+            android:background="@color/colorAccent"
+
+            android:textColor="@color/number_button_text"
+            android:textSize="@dimen/text_size"
+            app:layout_constraintBottom_toTopOf="@+id/total_text_view"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+
+            app:layout_constraintVertical_chainStyle="packed" />
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/total_text_view"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_end="526dp" />
+
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@color/colorAccent"
+        android:textColor="@color/number_button_text"
+        android:textSize="@dimen/text_size"
+        app:layout_constraintBottom_toTopOf="@+id/clear_button"
+        app:layout_constraintEnd_toEndOf="@+id/calculation_text_scroller"
+        app:layout_constraintStart_toStartOf="@+id/calculation_text_scroller"
+        app:layout_constraintTop_toBottomOf="@+id/calculation_text_scroller" />
+
+
 
     <!-- // Row 1 -->
 
@@ -22,7 +70,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="@dimen/half_standard_margin"
-        android:layout_marginTop="@dimen/half_standard_margin"
+        android:layout_marginTop="8dp"
         android:background="@color/operator_button_accent"
         android:text="@string/clear"
         android:textColor="@color/number_button_text"
@@ -32,7 +80,7 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline" />
+        app:layout_constraintTop_toBottomOf="@+id/total_text_view" />
 
     <Button
         android:id="@+id/negate_button"
@@ -94,7 +142,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/half_standard_margin"
-        android:text="7"
+        android:text="@string/_7"
         android:textColor="@color/number_button_text"
         android:textSize="@dimen/text_size"
         app:layout_constraintBottom_toTopOf="@+id/n4_button"
@@ -109,7 +157,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="@dimen/half_standard_margin"
-        android:text="8"
+        android:text="@string/_8"
         android:textColor="@color/number_button_text"
         android:textSize="@dimen/text_size"
         app:layout_constraintBottom_toBottomOf="@+id/n7_button"
@@ -125,7 +173,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="@dimen/half_standard_margin"
-        android:text="9"
+        android:text="@string/_9"
         android:textColor="@color/number_button_text"
         android:textSize="@dimen/text_size"
         app:layout_constraintBottom_toBottomOf="@+id/n7_button"
@@ -161,7 +209,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/half_standard_margin"
-        android:text="4"
+        android:text= "@string/_4"
         android:textColor="@color/number_button_text"
         android:textSize="@dimen/text_size"
         app:layout_constraintBottom_toTopOf="@+id/n1_button"
@@ -176,7 +224,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="@dimen/half_standard_margin"
-        android:text="5"
+        android:text="@string/_5"
         android:textColor="@color/number_button_text"
         android:textSize="@dimen/text_size"
         app:layout_constraintBottom_toBottomOf="@+id/n4_button"
@@ -192,7 +240,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="@dimen/half_standard_margin"
-        android:text="6"
+        android:text="@string/_6"
         android:textColor="@color/number_button_text"
         android:textSize="@dimen/text_size"
         app:layout_constraintBottom_toBottomOf="@+id/n4_button"
@@ -228,7 +276,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/half_standard_margin"
-        android:text="1"
+        android:text="@string/_1"
         android:textColor="@color/number_button_text"
         android:textSize="@dimen/text_size"
         app:layout_constraintBottom_toTopOf="@+id/delete_button"
@@ -243,7 +291,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="@dimen/half_standard_margin"
-        android:text="2"
+        android:text="@string/_2"
         android:textColor="@color/number_button_text"
         android:textSize="@dimen/text_size"
         app:layout_constraintBottom_toBottomOf="@+id/n1_button"
@@ -259,7 +307,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="@dimen/half_standard_margin"
-        android:text="3"
+        android:text="@string/_3"
         android:textColor="@color/number_button_text"
         android:textSize="@dimen/text_size"
         app:layout_constraintBottom_toBottomOf="@+id/n1_button"
@@ -313,7 +361,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="@dimen/half_standard_margin"
-        android:text="0"
+        android:text="@string/_0"
         android:textColor="@color/number_button_text"
         android:textSize="@dimen/text_size"
         app:layout_constraintBottom_toBottomOf="@+id/delete_button"
@@ -357,35 +405,7 @@
         app:layout_constraintTop_toTopOf="@+id/delete_button"
         app:layout_constraintVertical_bias="1.0" />
 
-    <TextView
-        android:id="@+id/calculation_text_view"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/half_standard_margin"
-        android:layout_marginTop="@dimen/standard_margin"
-        android:layout_marginEnd="@dimen/half_standard_margin"
-        android:layout_marginBottom="@dimen/standard_margin"
-        android:background="@color/colorAccent"
-        android:textColor="@color/number_button_text"
-        android:textSize="@dimen/text_size"
-        app:layout_constraintBottom_toTopOf="@+id/total_text_view"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/total_text_view"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/half_standard_margin"
-        android:background="@color/colorAccent"
-        android:textColor="@color/number_button_text"
-        android:textSize="@dimen/text_size"
-
-        app:layout_constraintBottom_toBottomOf="@+id/guideline"
-        app:layout_constraintEnd_toEndOf="@+id/calculation_text_view"
-        app:layout_constraintStart_toStartOf="@+id/calculation_text_view" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/more_options_card_view"
