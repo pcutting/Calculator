@@ -14,7 +14,7 @@
     <string name="log2">Log2</string>
     <string name="log_n">LogN</string>
     <string name="nth_root_of">\u02e3√</string>
-    <string name="nth_power_of">^x</string>
+    <string name="nth_power_of">^\u02e3</string>
     <string name="squared">^2</string>
     <string name="more_options">...</string>
 

@@ -7,12 +7,99 @@
     android:background="#091FEC"
     tools:context=".MainActivity">
 
+
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_end="225dp" />
+        app:layout_constraintGuide_end="190dp" />
+
+    <!-- // Row 0 -->
+
+    <Button
+        android:id="@+id/squared_button"
+        style="@style/AppTheme.RoundedCornerMaterialButtonNumber"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="@dimen/half_standard_margin"
+        android:layout_marginTop="@dimen/half_standard_margin"
+        android:background="@color/operator_button_accent"
+        android:text="@string/squared"
+        android:textColor="@color/number_button_text"
+        android:textSize="@dimen/text_size"
+        app:layout_constraintBottom_toTopOf="@+id/nth_power_of_button"
+        app:layout_constraintEnd_toStartOf="@id/clear_button"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline" />
+
+    <Button
+        android:id="@+id/nth_power_of_button"
+        style="@style/AppTheme.RoundedCornerMaterialButtonOperator"
+        android:background="@color/operator_button_accent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/half_standard_margin"
+        android:text="@string/nth_power_of"
+        android:textColor="@color/number_button_text"
+        android:textSize="@dimen/text_size"
+        app:layout_constraintBottom_toTopOf="@+id/sqrt_button"
+        app:layout_constraintEnd_toEndOf="@+id/squared_button"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/squared_button"
+        app:layout_constraintTop_toBottomOf="@+id/squared_button" />
+
+    <Button
+        android:id="@+id/sqrt_button"
+        style="@style/AppTheme.RoundedCornerMaterialButtonOperator"
+        android:background="@color/operator_button_accent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/half_standard_margin"
+        android:text="@string/sqrt"
+        android:textColor="@color/number_button_text"
+        android:textSize="@dimen/text_size"
+        app:layout_constraintBottom_toTopOf="@+id/nth_root_button"
+        app:layout_constraintEnd_toEndOf="@+id/squared_button"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/squared_button"
+        app:layout_constraintTop_toBottomOf="@+id/nth_power_of_button" />
+
+    <Button
+        android:id="@+id/nth_root_button"
+        style="@style/AppTheme.RoundedCornerMaterialButtonOperator"
+        android:background="@color/operator_button_accent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/half_standard_margin"
+        android:text="@string/nth_root_of"
+        android:textColor="@color/number_button_text"
+        android:textSize="@dimen/text_size"
+        app:layout_constraintBottom_toTopOf="@+id/log2_button"
+        app:layout_constraintEnd_toEndOf="@+id/squared_button"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/squared_button"
+        app:layout_constraintTop_toBottomOf="@+id/sqrt_button" />
+
+    <Button
+        android:id="@+id/log2_button"
+        style="@style/AppTheme.RoundedCornerMaterialButtonNumber"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/half_standard_margin"
+        android:layout_marginBottom="@dimen/half_standard_margin"
+        android:background="@color/operator_button_accent"
+        android:text="@string/log2"
+        android:textColor="@color/number_button_text"
+        android:textSize="@dimen/text_size"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/squared_button"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/squared_button"
+        app:layout_constraintTop_toBottomOf="@+id/nth_root_button" />
+
 
     <!-- // Row 1 -->
 
@@ -22,17 +109,17 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="@dimen/half_standard_margin"
-        android:layout_marginTop="@dimen/half_standard_margin"
         android:background="@color/operator_button_accent"
         android:text="@string/clear"
         android:textColor="@color/number_button_text"
         android:textSize="@dimen/text_size"
+        app:layout_constraintBottom_toBottomOf="@+id/squared_button"
         app:layout_constraintBottom_toTopOf="@+id/n7_button"
         app:layout_constraintEnd_toStartOf="@id/negate_button"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline" />
+        app:layout_constraintStart_toEndOf="@+id/squared_button"
+        app:layout_constraintTop_toTopOf="@+id/squared_button" />
 
     <Button
         android:id="@+id/negate_button"
@@ -364,7 +451,7 @@
         android:layout_marginStart="@dimen/half_standard_margin"
         android:layout_marginTop="@dimen/standard_margin"
         android:layout_marginEnd="@dimen/half_standard_margin"
-        android:layout_marginBottom="4dp"
+        android:layout_marginBottom="@dimen/standard_margin"
         android:background="@color/colorAccent"
         android:textColor="@color/number_button_text"
         android:textSize="@dimen/text_size"
@@ -377,15 +464,14 @@
     <TextView
         android:id="@+id/total_text_view"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
+        android:layout_height="@dimen/text_hieght"
+        android:layout_marginBottom="@dimen/half_standard_margin"
         android:background="@color/colorAccent"
         android:textColor="@color/number_button_text"
         android:textSize="@dimen/text_size"
 
         app:layout_constraintBottom_toBottomOf="@+id/guideline"
         app:layout_constraintEnd_toEndOf="@+id/calculation_text_view"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/calculation_text_view" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
