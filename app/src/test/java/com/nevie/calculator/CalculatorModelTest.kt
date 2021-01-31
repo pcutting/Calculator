@@ -5,7 +5,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class CalculatorModelTest {
-    //private val calculator=  Calculator()
 
     @Test
     fun `testing user enters 1 + 2 and gets 3`() {
@@ -25,7 +24,27 @@ class CalculatorModelTest {
         assertEquals(1.5, Calculator().processUserInput("3 / 2"))
     }
 
+    @Test
+    fun `test user key feedback 1,2 % 7, returns 5`() {
+        val calculator = Calculator()
+        calculator.processUserInput(CalculatorInputs.ONE)
+        calculator.processUserInput(CalculatorInputs.TWO)
+        calculator.processUserInput(CalculatorInputs.MODULO)
+        calculator.processUserInput(CalculatorInputs.SEVEN)
+        assertEquals(5, calculator.currentTotal)
+    }
 
+
+    // this test function should fail. I wrote it wrong on purpose.
+    @Test
+    fun `test user key feedback 1,2, DIVIDE, 6, returns 2`() {
+        val calculator = Calculator()
+        calculator.processUserInput(CalculatorInputs.ONE)
+        calculator.processUserInput(CalculatorInputs.TWO)
+        calculator.processUserInput(CalculatorInputs.DIVIDE)
+        calculator.processUserInput(CalculatorInputs.SIX)
+        assertEquals(3, calculator.currentTotal)
+    }
 
 
 
