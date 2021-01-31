@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_end="442dp" />
+        app:layout_constraintGuide_end="734dp" />
 
     <!-- // Row 1 -->
 
@@ -109,7 +109,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="@dimen/half_standard_margin"
-        android:text="8"
+        android:text="a"
         android:textColor="@color/number_button_text"
         android:textSize="@dimen/text_size"
         app:layout_constraintBottom_toBottomOf="@+id/n7_button"

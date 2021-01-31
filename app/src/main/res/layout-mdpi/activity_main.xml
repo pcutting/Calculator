@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_end="704dp" />
+        app:layout_constraintGuide_end="283dp" />
 
     <!-- // Row 1 -->
 
@@ -377,7 +377,7 @@
     <TextView
         android:id="@+id/total_text_view"
         android:layout_width="0dp"
-        android:layout_height="@dimen/text_hieght"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/half_standard_margin"
         android:background="@color/colorAccent"
         android:textColor="@color/number_button_text"

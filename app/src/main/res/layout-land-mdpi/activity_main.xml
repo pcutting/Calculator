@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_end="704dp" />
+        app:layout_constraintGuide_end="225dp" />
 
     <!-- // Row 1 -->
 
@@ -364,7 +364,7 @@
         android:layout_marginStart="@dimen/half_standard_margin"
         android:layout_marginTop="@dimen/standard_margin"
         android:layout_marginEnd="@dimen/half_standard_margin"
-        android:layout_marginBottom="@dimen/standard_margin"
+        android:layout_marginBottom="4dp"
         android:background="@color/colorAccent"
         android:textColor="@color/number_button_text"
         android:textSize="@dimen/text_size"
@@ -377,14 +377,15 @@
     <TextView
         android:id="@+id/total_text_view"
         android:layout_width="0dp"
-        android:layout_height="@dimen/text_hieght"
-        android:layout_marginBottom="@dimen/half_standard_margin"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
         android:background="@color/colorAccent"
         android:textColor="@color/number_button_text"
         android:textSize="@dimen/text_size"
 
         app:layout_constraintBottom_toBottomOf="@+id/guideline"
         app:layout_constraintEnd_toEndOf="@+id/calculation_text_view"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/calculation_text_view" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
