@@ -9,8 +9,7 @@ private const val TAG = "Calculator model"
 
 data class CalculatingUnit(
     var numberData: String = "", // screen representation, ie "9"
-    //var sign: Int = 1, // 1 for positive, -1 for negative
-    var operation: Inputs? = null,
+    var operation: CalculatorInputs? = null,
     var kind: Kinds,
     var isResult: Boolean = false
 ) {
@@ -31,24 +30,24 @@ enum class Kinds {
     NUMBER, OPERATOR, FUNCTION_CALL;
 }
 
-enum class Inputs(private val kindOf : Kinds, val text_value: String) {
+enum class CalculatorInputs(private val kindOf : Kinds, val text_value: String, val textOnlyEquivalent: String = "") {
     CLEAR(Kinds.FUNCTION_CALL,"clear"),
     DELETE(Kinds.FUNCTION_CALL, "delete"),
 
     DIVIDE(Kinds.OPERATOR,"/"),
-    MULTIPLY(Kinds.OPERATOR,"*"),
-    ADD(Kinds.OPERATOR,"+"),
-    SUBTRACT(Kinds.OPERATOR,"-"),
-    MODULO(Kinds.OPERATOR,"%"),
-    SQUARED(Kinds.OPERATOR,"^2"),
-    NTHPOWEROF(Kinds.OPERATOR,"^ˣ"),
-    SQUAREROOT(Kinds.OPERATOR,"\u221a"),
-    NTHROOTOF(Kinds.OPERATOR,"\u02e3√"),
+    MULTIPLY(Kinds.OPERATOR,"*", "x"),
+    ADD(Kinds.OPERATOR,"+", "plus"),
+    SUBTRACT(Kinds.OPERATOR,"-", "minus"),
+    MODULO(Kinds.OPERATOR,"%", "mod"),
+    SQUARED(Kinds.OPERATOR,"^2", "squared"),
+    NTHPOWEROF(Kinds.OPERATOR,"^ˣ", "x^y"),
+    SQUAREROOT(Kinds.OPERATOR,"\u221a", "sqrt"),
+    NTHROOTOF(Kinds.OPERATOR,"\u02e3√", "xRootOf"),
     LOG2(Kinds.OPERATOR,"Log2"),
-    EQUALS(Kinds.OPERATOR,"="),
+    EQUALS(Kinds.OPERATOR,"=", "equals"),
     NULL(Kinds.OPERATOR,"null"),
 
-    NEGATE(Kinds.NUMBER,"+/-"),
+    NEGATE(Kinds.NUMBER,"+/-", "+/-"),
     ONE(Kinds.NUMBER,"1"),
     TWO(Kinds.NUMBER,"2"),
     THREE(Kinds.NUMBER,"3"),
@@ -59,7 +58,7 @@ enum class Inputs(private val kindOf : Kinds, val text_value: String) {
     EIGHT(Kinds.NUMBER,"8"),
     NINE(Kinds.NUMBER,"9"),
     ZERO(Kinds.NUMBER,"0"),
-    DOT(Kinds.NUMBER,".");
+    DOT(Kinds.NUMBER,".", "dot");
 
     fun isOperator():Boolean {
         return this.kindOf == Kinds.OPERATOR
@@ -75,15 +74,15 @@ enum class Inputs(private val kindOf : Kinds, val text_value: String) {
 
     companion object {
         fun isSymbol(symbol: String): Boolean {
-            return Inputs.values().find { it.text_value == symbol } != null
+            return CalculatorInputs.values().find { it.text_value == symbol ||
+                    it.textOnlyEquivalent.toLowerCase() == symbol.toLowerCase() ||
+                    it.text_value.toLowerCase() == symbol.toLowerCase()} != null
         }
 
-        fun getEnumValue(symbol: String): Inputs {
-            return Inputs.values().find { it.text_value   == symbol } ?: NULL
-        }
-
-        fun getMatchingInput(symbol: String): Inputs {
-            return Inputs.values().find { it.text_value   == symbol } ?: NULL
+        fun getEnumValue(symbol: String): CalculatorInputs {
+            return CalculatorInputs.values().find { it.text_value   == symbol ||
+                    it.textOnlyEquivalent.toLowerCase() == symbol.toLowerCase() ||
+                    it.text_value.toLowerCase() == symbol.toLowerCase()} ?: NULL
         }
 
         private val listOfOneVariableOperations = listOf(
@@ -97,6 +96,8 @@ enum class Inputs(private val kindOf : Kinds, val text_value: String) {
     }
 }
 
+
+// TODO: Remove. This was left in only for discussion.
 //enum class Operations(val symbol: String) {
 //    DIVIDE("/"),
 //    MULTIPLY("*"),
@@ -128,7 +129,6 @@ enum class Inputs(private val kindOf : Kinds, val text_value: String) {
 //    }
 //}
 
-// Should decimalScale be shifted to the view Model?
 class Calculator(
     val operationsList: MutableList<CalculatingUnit> = mutableListOf<CalculatingUnit>(),
     var currentTotal: String = "",
@@ -144,14 +144,53 @@ class Calculator(
     //  ******* ALAN  **** ????????????????????
     // At this point did I clean up this code in a way you were looking for?
     //
-    // TODO code smell? around line 219
+    // TODO code smell? around line 334
 
 
     fun processUserInput(buttonText: String) {
-        processUserInput(Inputs.getEnumValue(buttonText))
+        // Verify input provided. Either it is in form of a simple enum class CalculatorInput.
+        //  or it'll be strings, maybe simple operator equivalents, numbmers, or complete calculations.
+
+        if (buttonText.isNullOrBlank()) {
+            return
+        } else if (buttonText.contains(" ")) {
+            //has more than one operation.  Send it to check to see if it is a calculation substring
+            processStatementInputs(buttonText)
+        } else if (isNumeric(buttonText)) {
+            processCompleteNumberInputs(buttonText)
+        } else {
+            processUserInput(CalculatorInputs.getEnumValue(buttonText))
+        }
     }
 
-    fun processUserInput(button: Inputs ) {
+    private fun processCompleteNumberInputs(numeric : String) {
+        if (isNumeric(numeric)) {
+            // Send the entire number to be processed.
+
+            (0 until numeric.length).forEach {
+                if (it == 0 && numeric[0] == '-') {
+                    processUserInput(CalculatorInputs.NEGATE)
+                } else {
+                    processUserInput(CalculatorInputs.getEnumValue(numeric[it].toString()))
+                }
+            }
+        } else {
+            Log.d(TAG, "processCompleteNumberInputs(${numeric}) was passed an invalid string")
+        }
+    }
+
+    private fun processStatementInputs(string: String) {
+        Log.d(TAG, "Processing complete calculation from user input: $string")
+        string.split(" ").forEach {
+            if(isNumeric(it)) {
+                processCompleteNumberInputs(it)
+            } else {
+                processUserInput(CalculatorInputs.getEnumValue(string))
+            }
+        }
+    }
+
+    fun processUserInput(button: CalculatorInputs ) {
         // 0-9 .:  are numbers, add them to the calculation string
         // % / * - + are operators, check the operator to see if it's postfix or surround operators
         // = means to execute the calculation where ever it is.
@@ -173,11 +212,11 @@ class Calculator(
 //                }
 //            }
 
-            button == Inputs.CLEAR -> {
+            button == CalculatorInputs.CLEAR -> {
                 clearCalculator()
             }
 
-            button == Inputs.DELETE-> {
+            button == CalculatorInputs.DELETE-> {
                 //handleErrors("Delete last character or operation")
                 if (operationsList.isNullOrEmpty()) {
                     currentCalculation = "Nothing to delete."
@@ -198,7 +237,7 @@ class Calculator(
         }
     }
 
-    private fun processNumericKeys(button : Inputs) {
+    private fun processNumericKeys(button : CalculatorInputs) {
         if (!operationsList.isNullOrEmpty() && operationsList.last().isResult) {
             clearCalculator()
         }
@@ -208,11 +247,11 @@ class Calculator(
             kind = Kinds.NUMBER,
             operation = null  // Operations.getEnumValue(button.text_value)
         )
-        if (button == Inputs.NEGATE) {
+        if (button == CalculatorInputs.NEGATE) {
             unit.numberData = "-"
         }
 
-        if (button == Inputs.DOT) {
+        if (button == CalculatorInputs.DOT) {
             hasDecimal = true
         }
 
@@ -221,7 +260,7 @@ class Calculator(
                 pushToOperationsList(unit)
             }
 
-            unit.operation == Inputs.NEGATE && operationsList.last().isNumber() -> {
+            unit.operation == CalculatorInputs.NEGATE && operationsList.last().isNumber() -> {
                 var priorUnit = operationsList.last()
                 if (priorUnit.numberData[0] == '-') {
                     priorUnit.numberData =
@@ -233,7 +272,7 @@ class Calculator(
                 }
             }
 
-            (unit.operation == Inputs.NEGATE && operationsList.last().isOperation()) -> {
+            (unit.operation == CalculatorInputs.NEGATE && operationsList.last().isOperation()) -> {
                 unit.numberData = "-"
                 pushToOperationsList(unit)
             }
@@ -258,12 +297,12 @@ class Calculator(
         }
     }
 
-    private fun tryToCalculateExistingCalculation(button: Inputs): String {
+    private fun tryToCalculateExistingCalculation(button: CalculatorInputs): String {
         val unit: CalculatingUnit = CalculatingUnit(
-            kind = Kinds.OPERATOR, operation = Inputs.getEnumValue(button.text_value)
+            kind = Kinds.OPERATOR, operation = CalculatorInputs.getEnumValue(button.text_value)
         )
 
-        if (unit.operation == null || unit.operation == Inputs.NULL) {
+        if (unit.operation == null || unit.operation == CalculatorInputs.NULL) {
             handleErrors("expected a known operation, non found.")
             return "Error"
         }
@@ -285,7 +324,7 @@ class Calculator(
                 //TODO reconsider this operation.
                 if ((operationsList[it+1].operation?.isAOneVariableOperation() ?: false)) {
                     subTotal = callOneOperationOperator(
-                        operation = operationsList[it + 1].operation ?: Inputs.NULL,
+                        operation = operationsList[it + 1].operation ?: CalculatorInputs.NULL,
                         operand = subTotal
                     )
                 } else if (it >= operationsList.size-2) {
@@ -293,7 +332,7 @@ class Calculator(
                 } else {
                     subTotal = callTwoOperationOperator(
                         // TODO verify if this is a code smell.???
-                        operation = operationsList[it + 1].operation ?: Inputs.NULL,
+                        operation = operationsList[it + 1].operation ?: CalculatorInputs.NULL,
                         operandFirst = subTotal,
                         operandSecond = operationsList[it + 2].numberData
                     )
@@ -323,7 +362,7 @@ class Calculator(
     private fun buildCurrentCalculationStringFromOperationsList() {
         currentCalculation = ""
         operationsList.forEach {
-            if (it.isOperation() && it.isAOneOperatorOperation() && it.operation != Inputs.EQUALS) {
+            if (it.isOperation() && it.isAOneOperatorOperation() && it.operation != CalculatorInputs.EQUALS) {
                 currentCalculation += " ${it.operation?.text_value ?: " ERROR "} = "
             } else if (it.isOperation()) {
                 currentCalculation += " ${it.operation?.text_value ?: " ERROR "} "
@@ -407,11 +446,11 @@ class Calculator(
     }
 
     private fun callOneOperationOperator(
-        operation: Inputs,
+        operation: CalculatorInputs,
         operand: String
     ): String {
         var newTotal = ""
-        if (operation == Inputs.NULL) {
+        if (operation == CalculatorInputs.NULL) {
             handleErrors("missing operator")
             return "Error"
         }
@@ -421,28 +460,28 @@ class Calculator(
         Log.d(TAG, "callOneOneOperationOperator($operation, $operand")
 
         newTotal = when (operation) {
-            Inputs.NULL -> {
+            CalculatorInputs.NULL -> {
                 "Error or null used."
             }
 
-            Inputs.EQUALS -> {
+            CalculatorInputs.EQUALS -> {
                 equals(operand)
             }
 
-            Inputs.NEGATE -> {
+            CalculatorInputs.NEGATE -> {
                 Log.d(TAG, "ERROR.  this operator should note have been handled here.")
                 "" // implemented in numbers function
             }
 
-            Inputs.SQUAREROOT -> {
+            CalculatorInputs.SQUAREROOT -> {
                 squareroot(operand)
             }
 
-            Inputs.SQUARED -> {
+            CalculatorInputs.SQUARED -> {
                 squared(operand)
             }
 
-            Inputs.LOG2 -> {
+            CalculatorInputs.LOG2 -> {
                 log2(operand)
             }
 
@@ -457,12 +496,12 @@ class Calculator(
 
 
     private fun callTwoOperationOperator(
-        operation: Inputs,
+        operation: CalculatorInputs,
         operandFirst: String,
         operandSecond: String = ""
     ): String {
         var newTotal = ""
-        if (operation == Inputs.NULL) {
+        if (operation == CalculatorInputs.NULL) {
             handleErrors("missing operator")
             return "Error"
         }
@@ -474,25 +513,25 @@ class Calculator(
 
 
         newTotal = when (operation) {
-            Inputs.DIVIDE -> {
+            CalculatorInputs.DIVIDE -> {
                 divide(operand1, operand2)
             }
-            Inputs.MULTIPLY -> {
+            CalculatorInputs.MULTIPLY -> {
                 multiply(operand1, operand2)
             }
-            Inputs.MODULO -> {
+            CalculatorInputs.MODULO -> {
                 modulo(operand1, operand2)
             }
-            Inputs.ADD -> {
+            CalculatorInputs.ADD -> {
                 addition(operand1, operand2)
             }
-            Inputs.SUBTRACT -> {
+            CalculatorInputs.SUBTRACT -> {
                 subtraction(operand1, operand2)
             }
-            Inputs.NTHROOTOF -> {
+            CalculatorInputs.NTHROOTOF -> {
                 sqrtOfX(operand1, operand2)
             }
-            Inputs.NTHPOWEROF -> {
+            CalculatorInputs.NTHPOWEROF -> {
                 powerOfX(operand1,operand2)
             }
 

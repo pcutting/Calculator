@@ -7,9 +7,7 @@ import android.widget.Button
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
-import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
-import com.nevie.calculator.model.Inputs
+import com.nevie.calculator.model.CalculatorInputs
 
 class MainActivity : AppCompatActivity() {
 
@@ -73,25 +71,25 @@ class MainActivity : AppCompatActivity() {
             if (moreOptionsButton != null) {
                 makeCardInvisible(moreOptionsCard)
             }
-            calculatorViewModel.buttonPush(Inputs.SQUARED)
+            calculatorViewModel.buttonPush(CalculatorInputs.SQUARED)
             updateScreen(calculationTextView,totalTextView, mScrollView)
         }
 
         nthPowerButton?.setOnClickListener {
             makeCardInvisible(moreOptionsCard)
-            calculatorViewModel.buttonPush(Inputs.NTHPOWEROF)
+            calculatorViewModel.buttonPush(CalculatorInputs.NTHPOWEROF)
             updateScreen(calculationTextView,totalTextView, mScrollView)
         }
 
         nthRootButton?.setOnClickListener {
             makeCardInvisible(moreOptionsCard)
-            calculatorViewModel.buttonPush(Inputs.NTHROOTOF)
+            calculatorViewModel.buttonPush(CalculatorInputs.NTHROOTOF)
             updateScreen(calculationTextView,totalTextView, mScrollView)
         }
 
         log2Button?.setOnClickListener {
             makeCardInvisible(moreOptionsCard)
-            calculatorViewModel.buttonPush(Inputs.LOG2)
+            calculatorViewModel.buttonPush(CalculatorInputs.LOG2)
             updateScreen(calculationTextView,totalTextView, mScrollView)
         }
 
@@ -103,7 +101,7 @@ class MainActivity : AppCompatActivity() {
 
         sqrtButton?.setOnClickListener {
             makeCardInvisible(moreOptionsCard)
-            calculatorViewModel.buttonPush(Inputs.SQUAREROOT)
+            calculatorViewModel.buttonPush(CalculatorInputs.SQUAREROOT)
             updateScreen(calculationTextView,totalTextView, mScrollView)
         }
 

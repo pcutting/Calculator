@@ -1,9 +1,8 @@
 package com.nevie.calculator
 
 import android.util.Log
-import androidx.lifecycle.ViewModel
 import com.nevie.calculator.model.Calculator
-import com.nevie.calculator.model.Inputs
+import com.nevie.calculator.model.CalculatorInputs
 
 class CalculatorViewModel  {
 
@@ -20,7 +19,7 @@ class CalculatorViewModel  {
         calculator.processUserInput(buttonText)
     }
 
-    fun buttonPush(button : Inputs) {
+    fun buttonPush(button : CalculatorInputs) {
         Log.d("CalculatorViewModel:", "Button pressed: ${button.text_value}")
         lastButton  = button.text_value
         calculator.processUserInput(button)
