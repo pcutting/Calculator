@@ -166,7 +166,7 @@ class MainActivity : AppCompatActivity() {
     
     private fun updateScreen( calculationTextView: TextView, totalTextView: TextView, mScrollView : ScrollView){
 
-        calculationTextView.text = calculatorViewModel.getCaluculationString()
+        calculationTextView.text = calculatorViewModel.getCalculationString()
         totalTextView.text = calculatorViewModel.getTotalValueFromCalculator()
         scrollToBottom(mScrollView)
         

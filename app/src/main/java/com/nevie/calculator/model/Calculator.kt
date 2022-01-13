@@ -97,7 +97,8 @@ enum class CalculatorInputs(private val kindOf : Kinds, val text_value: String, 
 }
 
 
-// TODO: Remove. This was left in only for discussion.
+// TODO: Remove. This was left in only for discussion. trying to see if
+//              I over did it with the new Enum class.
 //enum class Operations(val symbol: String) {
 //    DIVIDE("/"),
 //    MULTIPLY("*"),
@@ -144,31 +145,31 @@ data class Calculator(
     //  ******* ALAN  **** ????????????????????
     // At this point did I clean up this code in a way you were looking for?
     //
-    // TODO code smell? around line 334
+    // TODO code smell? around line 327
 
 
-    fun processUserInput(buttonText: String) {
+    fun processUserInput(buttonText: String): String? {
         // Verify input provided. Either it is in form of a simple enum class CalculatorInput.
-        //  or it'll be strings, maybe simple operator equivalents, numbmers, or complete calculations.
+        //  or it'll be strings, maybe simple operator equivalents, numbers, or complete calculations.
 
-        if (buttonText.isNullOrBlank()) {
-            return
+        if (buttonText.isBlank()) {
+            return null
         } else if (buttonText.contains(" ")) {
             //has more than one operation.  Send it to check to see if it is a calculation substring
-            processStatementInputs(buttonText)
+            return processStatementInputs(buttonText)
         } else if (CalculatorInputs.isSymbol(buttonText)) {
-            processUserInput(CalculatorInputs.getEnumValue(buttonText))
+            return processUserInput(CalculatorInputs.getEnumValue(buttonText))
         } else if (isNumeric(buttonText)) {
             processCompleteNumberInputs(buttonText)
+            return null
         } else {
-            return
+            return null
         }
     }
 
     private fun processCompleteNumberInputs(numeric : String) {
         if (isNumeric(numeric)) {
             // Send the entire number to be processed.
-
             (0 until numeric.length).forEach {
                 if (it == 0 && numeric[0] == '-') {
                     processUserInput(CalculatorInputs.NEGATE)
@@ -181,26 +182,29 @@ data class Calculator(
         }
     }
 
-    private fun processStatementInputs(string: String) {
+    private fun processStatementInputs(string: String): String? {
         Log.d(TAG, "Processing complete calculation from user input: $string")
+        var lastValue: String? = null
         string.split(" ").forEach {
             if(isNumeric(it)) {
                 processCompleteNumberInputs(it)
             } else {
-                processUserInput(CalculatorInputs.getEnumValue(it))
+               lastValue =  processUserInput(CalculatorInputs.getEnumValue(it))
             }
         }
+        return lastValue
     }
 
-    fun processUserInput(button: CalculatorInputs ) {
+    fun processUserInput(button: CalculatorInputs ): String? {
         // 0-9 .:  are numbers, add them to the calculation string
         // % / * - + are operators, check the operator to see if it's postfix or surround operators
         // = means to execute the calculation where ever it is.
 
-        when {
+        val output: String?  =  when {
             // "+/-, 0..9, "."
             button.isNumber() -> {
                 processNumericKeys(button)
+                null
             }
 
             button.isOperator() -> {
@@ -208,35 +212,30 @@ data class Calculator(
                 tryToCalculateExistingCalculation(button)
             }
 
-//            "=".contains(button.text_value) -> {
-//                if (operationsList.count() > 2) {
-//                    tryToCalculateExistingCalculation(button.text_value)
-//                }
-//            }
-
             button == CalculatorInputs.CLEAR -> {
                 clearCalculator()
+                null
             }
 
             button == CalculatorInputs.DELETE-> {
-                //handleErrors("Delete last character or operation")
                 if (operationsList.isNullOrEmpty()) {
                     currentCalculation = "Nothing to delete."
                 } else if (operationsList.last().isResult) {
                     operationsList.removeAt(operationsList.size-1)
                     operationsList.removeAt(operationsList.size-1)
-
                 }else if (operationsList.last().isOperation()) {
                     operationsList.removeAt(operationsList.count()-1)
                 } else {
                     removeLastCharacterFromNumberData()
                 }
                 buildCurrentCalculationStringFromOperationsList()
+                null
             }
             else -> {
                 handleErrors("unknown operation being called.  Possible error")
             }
         }
+        return output
     }
 
     private fun processNumericKeys(button : CalculatorInputs) {
@@ -247,7 +246,7 @@ data class Calculator(
         val unit: CalculatingUnit = CalculatingUnit(
             numberData = button.text_value,
             kind = Kinds.NUMBER,
-            operation = CalculatorInputs?.getEnumValue(button.text_value) ?: null
+            operation = CalculatorInputs?.getEnumValue(button.text_value)
         )
         if (button == CalculatorInputs.NEGATE) {
             unit.numberData = "-"
@@ -265,8 +264,7 @@ data class Calculator(
             unit.operation == CalculatorInputs.NEGATE && operationsList.last().isNumber() -> {
                 var priorUnit = operationsList.last()
                 if (priorUnit.numberData[0] == '-') {
-                    priorUnit.numberData =
-                        priorUnit.numberData.substring(1, priorUnit.numberData.length)
+                    priorUnit.numberData = priorUnit.numberData.substring(1, priorUnit.numberData.length)
                     replaceLastOperationInOperationsList(priorUnit)
                 } else {
                     priorUnit.numberData = "-" + priorUnit.numberData
@@ -322,7 +320,7 @@ data class Calculator(
         var subTotal = ""
         try {
             subTotal = operationsList[0].numberData
-            (0 until operationsList.count() - 1 step 2).forEach() {
+            (0 until operationsList.count() - 1 step 2).forEach {
                 //TODO reconsider this operation.
                 if ((operationsList[it+1].operation?.isAOneVariableOperation() ?: false)) {
                     subTotal = callOneOperationOperator(
@@ -350,7 +348,6 @@ data class Calculator(
         }
 
         if ( operationsList.last().operation?.isAOneVariableOperation() ?: false) {
-//        if (operationsList.last().operation == Inputs.EQUALS) {
             pushToOperationsList(CalculatingUnit(isResult = true, numberData = textifyNumericFeedback(subTotal.toDouble()), kind = Kinds.NUMBER))
         }
 
@@ -379,9 +376,7 @@ data class Calculator(
         this.buildCurrentCalculationStringFromOperationsList()
     }
 
-    private fun replaceLastOperatorInOperationsList(
-        unit: CalculatingUnit
-    ) {
+    private fun replaceLastOperatorInOperationsList(unit: CalculatingUnit) {
         // this is called when a user changes the last operator they selected
         // before they add a number.  This calculator doesn't allow for operator chaining.
         if (unit.isNumber()) {
@@ -476,7 +471,7 @@ data class Calculator(
             }
 
             CalculatorInputs.SQUAREROOT -> {
-                squareroot(operand)
+                squareRoot(operand)
             }
 
             CalculatorInputs.SQUARED -> {
@@ -489,7 +484,7 @@ data class Calculator(
 
             else -> {
                 handleErrors("Invalid operation")
-                 currentTotal = "Invalid Operation"
+                currentTotal = "Invalid Operation"
                 return currentTotal
             }
         }
@@ -573,11 +568,6 @@ data class Calculator(
     private fun nullOperation(operand1: Double = 0.0, operand2: Double = 0.0): String {
         return "Some error"
     }
-//
-//    private fun equals(): String {
-//
-//        return (tryToCalculateExistingCalculation())
-//    }
 
     private fun addition(operand1: Double, operand2: Double): String {
         return (operand1 + operand2).toString()
@@ -602,7 +592,7 @@ data class Calculator(
         return (math).toString()
     }
 
-    private fun divide(operand1: Double, operand2: Double): String {
+    fun divide(operand1: Double, operand2: Double): String {
         return if (operand2 == 0.0) {
             return "Error div by 0"
         } else {
@@ -618,7 +608,7 @@ data class Calculator(
         }
     }
 
-    private fun squareroot(operand: Double): String {
+    private fun squareRoot(operand: Double): String {
         return kotlin.math.sqrt(operand).toString()
     }
 
@@ -635,8 +625,9 @@ data class Calculator(
         return (ln(operand)/ln(2.0)).toString()
     }
 
-    private fun handleErrors(message: String) {
+    private fun handleErrors(message: String): String {
         Log.d(TAG, "Possible error.  Check out '$message'.")
+        return "Error: $message"
     }
 
 }
