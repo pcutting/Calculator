@@ -25,9 +25,9 @@ class CalculatorViewModel  {
         calculator.processUserInput(button)
     }
 
-    fun getCaluculationString():String {
-        val calc_string = calculator.currentCalculation
-        return calc_string
+    fun getCalculationString():String {
+        val calcString = calculator.currentCalculation
+        return calcString
     }
 
     fun getTotalValueFromCalculator():String {
